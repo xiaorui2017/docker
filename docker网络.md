@@ -26,7 +26,7 @@
 
       **VNI（VXLAN网络标识ID）**：类似于VLAN ID，用于区分VXLAN段，不同的CVXLAN段不能直接二层网络通信。
 
-      ![](.\img\2018-10-15_151446.png)
+      ![](https://github.com/xiaorui2017/docker/blob/master/img/2018-10-15_151446.png)
 
   - **NVGRE（使用GRE虚拟网络）：**没有采用标准的传输协议（TCP/UDP），而是借助路由封装协议（GRE）。采用24bit标识二层网络分段，与VXLAN一样可以支持1600万个虚拟网络。
 
