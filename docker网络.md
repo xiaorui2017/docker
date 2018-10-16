@@ -191,3 +191,72 @@ docker run –it –e WEAVE_CIDR=10.32.0.100/24 busybox
 weave peer不断交换拓扑信息，监视和建立与其他peer的网络连接。如果有主机或网络出现故障，Weave会绕过这个主机，保证两边容器可以继续通信，当恢复时，恢复完全连接。
 ```
 
+**OpenvSwitch部署及工作流**
+
+##### 介绍：
+
+**什么是OpenVSwich？**
+OpenvSwich：开放虚拟交换标准，是一种基于开源Apache2.0许可证的多层软件交换机，专门管理多租赁云计算网络环境，支持KVM、Xen等虚拟化技术。
+
+**支持以下功能：**
+
+```tex
+1.支持标准802.1Q VLAN模块的Trunk和access端口模式；
+2.QoS（Quality of Service）配置，及管理；
+3.支持OpenFlow协议；
+4.支持GRE、VXLAN、STT和LISP隧道；
+5.具有C和Python接口配置数据库；
+6.支持内核态和用户态的转发引擎设置；
+7.支持流量控制及监控。
+```
+
+**主要组成部分：**
+
+```tex
+ovs-vswitchd	一个实现交换机的守护程序
+ovsdb-server	一个轻量级数据库，ovs-vswitchd查询以获取其配置
+ovs-dpctl		用于配置交换机的内核模块工具
+ovs-vsctl		用于查看和更新ovs-vswitchd的配置工具
+ovs-appctl		一个向运行OVS守护程序发送命令的工具
+```
+
+**还提供了openflow的工具：**
+
+```tex
+ovs-ofctl		用于查看和控制OpenFlow交换机和控制器
+ovs-pki			用于创建和管理公钥
+ovs-tcpundump	解析openflow消息
+```
+
+**安装部署OVS并建立GRE隧道**
+
+```tex
+节点1:192.168.1.198	容器网段：172.17.1.0/24	
+注：修改文件/lib/systemd/system/docker.service ExecStart函数里面添加 --bip=172.17.1.1/24
+节点2:192.168.1.199	容器网段：172.17.2.0/24
+注：修改文件/lib/systemd/system/docker.service ExecStart函数里面添加 --bip=172.17.2.1/24
+```
+
+```shell
+1.安装OVS
+# apt-get install openvswitch-switch bridge-utils
+2.创建网桥并激活
+# ovs-vsctl add-br br0
+# ip link set dev br0 up
+3.将gre0虚拟接口加入网桥br0，并设置接口类型和对端IP地址（远程IP指定对端）
+# ovs-vsctl add-port br0 gre0 -- set Interface gre0 type=gre options:remote_ip=192.168.1.199
+4.添加docker0网桥到OVS网桥br0
+# brctl addi fdocker0 br0
+5.查看网桥信息
+# ovs-vsctl show
+# brctl show
+6.添加静态路由
+# iproute add172.17.0.0/16 dev docker0
+# route  查看路由表
+7.验证互通
+# docker run -it busybox
+```
+
+centos7安装Openvswitch 2.5.1 https://blog.csdn.net/sqzhao/article/details/54947887
+
+![](https://github.com/xiaorui2017/docker/blob/master/img/2018-10-16_131448.png)
