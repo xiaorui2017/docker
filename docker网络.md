@@ -130,3 +130,60 @@ macvlan-02# docker run -it --net macvlan_net50 --ip=172.18.50.11 busybox ping 17
 
 
 
+#### Weave 网络部署
+
+##### 介绍：
+
+**Weave**在Docker主机之间实现**Overlay**网络，使用业界标准**VXLAN**封装，基于**UDP**传输，也可以加密传输。
+Weave Net创建一个连接多个Docker主机的虚拟网络，类似于一个以太网交换机，所有的容器都连接到这上面，互相通信。**Weave Net由多个peer组成，Weave路由器运行不同Docker主机上，是一个用户空间的进程；每个peer都有一个名称，重启保持不变。它们通过TCP连接彼此，建立后交换拓扑信息。**
+Weave Net可以在具有编号拓扑的部分连接的网络中路由数据包。例如，在下面网络中，peer1直接连接2和3，但是如果1需要发送数据包到4和5，则必须先将其发送到peer3。
+
+![](.\img\2018-10-16_102857.png)
+
+WeaveNet中的”fast data path”使用Linux内核的OpenvSwich datapath模块。该模块使Weave Net路由器能够告知内核如何处理数据包。OpenvSwich datapath和VXLAN功能在Linux内核版本3.12+才支持，如果内核不支持，则Weave Net使用”user mode”数据包路径。Weave Net会自动选择两台主机之间最快的路径传输数据，提供近原生吞吐量和延迟。
+
+##### 安装部署
+
+官方文档：https://www.weave.works/docs/net/latest/install/installing-weave
+**1.使用前提：**
+
+```tex
+1.确保Linux内核版本3.8+，Docker1.10+。
+2.节点之间如果有防火墙时，必须彼此放行TCP 6783和UDP6783/6784端口，这是Weave控制和数据端口。
+3.主机名不能相同，通过主机名标识子网。
+```
+
+**2.部署：**
+
+```shell
+1.安装Weave
+curl-L git.io/Weave -o /usr/local/bin/Weave
+chmod +x /usr/local/bin/Weave
+2.启动并与其他主机建立连接
+weave-01:~# weave launch
+weave-02:~# weave launch <ip address>
+3.使用Weave网络创建容器
+方式1：eval $(weave env)
+方式2：docker run-it --net=weave busybox
+4.测试互通
+docker run -it busybox
+```
+
+![](.\img\2018-10-16_103308.png)
+
+##### 其他功能
+
+```tex
+IP地址管理（IPAM）
+Weave自动为容器分配唯一的IP地址。可通过weave ps查看
+命名和发现
+命名的容器自动会注册到Weave DNS中，并可以通过容器名称访问。
+负载均衡
+允许注册多个相同名称的容器，Weave DNS随机为每个请求返回地址，提供基本的负载均衡功能。
+手动指定IP地址
+docker run –it –e WEAVE_CIDR=10.32.0.100/24 busybox
+动态拓扑
+可以在不停止或重新配置剩余Docker主机的情况下添加主机到Weave网络中或从Weave网络中删除
+容错
+weave peer不断交换拓扑信息，监视和建立与其他peer的网络连接。如果有主机或网络出现故障，Weave会绕过这个主机，保证两边容器可以继续通信，当恢复时，恢复完全连接。
+```
