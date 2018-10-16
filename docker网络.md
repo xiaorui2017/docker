@@ -138,7 +138,7 @@ macvlan-02# docker run -it --net macvlan_net50 --ip=172.18.50.11 busybox ping 17
 Weave Net创建一个连接多个Docker主机的虚拟网络，类似于一个以太网交换机，所有的容器都连接到这上面，互相通信。**Weave Net由多个peer组成，Weave路由器运行不同Docker主机上，是一个用户空间的进程；每个peer都有一个名称，重启保持不变。它们通过TCP连接彼此，建立后交换拓扑信息。**
 Weave Net可以在具有编号拓扑的部分连接的网络中路由数据包。例如，在下面网络中，peer1直接连接2和3，但是如果1需要发送数据包到4和5，则必须先将其发送到peer3。
 
-![](.\img\2018-10-16_102857.png)
+![](https://github.com/xiaorui2017/docker/blob/master/img/2018-10-16_102857.png)
 
 WeaveNet中的”fast data path”使用Linux内核的OpenvSwich datapath模块。该模块使Weave Net路由器能够告知内核如何处理数据包。OpenvSwich datapath和VXLAN功能在Linux内核版本3.12+才支持，如果内核不支持，则Weave Net使用”user mode”数据包路径。Weave Net会自动选择两台主机之间最快的路径传输数据，提供近原生吞吐量和延迟。
 
