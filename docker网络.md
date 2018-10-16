@@ -164,6 +164,7 @@ chmod +x /usr/local/bin/weave
 weave-01:~# weave launch
 weave-02:~# weave launch <ip address>
 weave status :查看weave状态
+weave status connections ： 查看链接信息
 3.使用Weave网络创建容器
 方式1：eval $(weave env)
 方式2：docker run-it --net=weave busybox
