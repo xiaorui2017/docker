@@ -169,7 +169,7 @@ weave-02:~# weave launch <ip address>
 docker run -it busybox
 ```
 
-![](.\img\2018-10-16_103308.png)
+![](https://github.com/xiaorui2017/docker/blob/master/img/2018-10-16_103308.png)
 
 ##### 其他功能
 
