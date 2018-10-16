@@ -158,8 +158,8 @@ WeaveNet中的”fast data path”使用Linux内核的OpenvSwich datapath模块�
 
 ```shell
 1.安装Weave
-curl-L git.io/Weave -o /usr/local/bin/Weave
-chmod +x /usr/local/bin/Weave
+curl -L git.io/weave -o /usr/local/bin/weave
+chmod +x /usr/local/bin/weave
 2.启动并与其他主机建立连接
 weave-01:~# weave launch
 weave-02:~# weave launch <ip address>
@@ -188,3 +188,4 @@ docker run –it –e WEAVE_CIDR=10.32.0.100/24 busybox
 容错
 weave peer不断交换拓扑信息，监视和建立与其他peer的网络连接。如果有主机或网络出现故障，Weave会绕过这个主机，保证两边容器可以继续通信，当恢复时，恢复完全连接。
 ```
+
