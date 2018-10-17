@@ -262,7 +262,7 @@ nslookup my_web2
 
 #### 高可用性
 
-![](./img/2018-10-17_162805.png)
+![](https://github.com/xiaorui2017/docker/blob/master/img/2018-10-17_162805.png)
 
 ```tex
 Manager节点任务：
