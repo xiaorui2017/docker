@@ -73,7 +73,7 @@ Docker版本1.12+
 dockerswarm init--advertise-addr192.168.1.110
 工作节点加入swarm：
 docker swarm join--tokenSWMTKN-1-XXX 192.168.1.110:2377
-
+注：上面那条命令具体执行可以使用docker swarm join-token manager/worker 来复制执行
 ```
 
 #### 服务管理
@@ -216,6 +216,74 @@ docker service create\
 #ping www.baidu.com是为了容器正常启动，可以通过上面服务管理-》创建服务第7行操作，取消ping操作
 docker service create --mount type=bind,src=/etc,dst=/data --name test02 busybox ping www.baidu.com
 ```
+
+#### 服务发现与负载均衡
+
+![](./img/2018-10-17_160441.png)
+
+```tex
+Swarm模式内置DNS组件，可以自动为集群中的每个服务分配DNS记录。Swarm manager使用内部负载均衡，根据服务的DNS名称在集群内的服务之间分发请求。
+Swarmmanager使用ingressloadblancing暴露你想从外部访问集群提供的服务。Swarm manager自动为服务分配一个范围30000-32767端口的Published Port,也可以为该服务指定一个Published Port。
+ingress network是一个特殊的overlay网络，便于服务的节点直接负载均衡。当任何swarm节点在已发布的端口上接收到请求时，它将该请求
+转发给调用的IPVS模块，IPVS跟踪参与该服务的所有容器IP地址，选择其中一个，并通过ingress network将请求路由给它。
+```
+
+```shell
+#进容器查看DNS记录
+nslookup hello
+#获取虚拟IP
+docker service inspect-f '{{json .Endpoint.VirtualIPs}}' hello
+#设置DNS轮询模式
+docker service create \
+--replicas 3 \
+--name my-web \
+--network my-network \
+--endpoint-mode dnsrr \
+nginx
+```
+
+```shell
+ #创建容器，并暴露端口，此时可以在宿主机访问ip:8080
+docker service create --replicas 3 --network my-network --name my_web nginx 
+docker service update --publish-add 8080:80 my_web
+
+docker service create --replicas 3 --network my-network -p 8081:80 --name my_web2 nginx
+#更新Swarm模式
+#1.首先移除端口映射
+docker service update --publish-rm 8081:80 my_web2
+#2.更改Swarm模式
+docker service update --endpoint-mode dnsrr my_web2
+#3.#进容器查看DNS记录
+nslookup my_web2
+注：使用dnsrr不支持端口对外的暴露，只支持服务之间的调用,此时可以使用下面模式进行负载均衡
+```
+
+![](./img/2018-10-17_155009.png)
+
+#### 高可用性
+
+![](./img/2018-10-17_162805.png)
+
+```tex
+Manager节点任务：
+1.维护集群状态
+2.调度服务
+3.提供swarm模式的HTTP API
+```
+
+```tex
+为了利用swarm模式的容错功能，应保持集群中奇数管理员来支持manager节点故障。当leader故障时，会选举新的leader。故障恢复：
+如果swarm失去法定人数，swarm不能自动恢复，工作节点上的任务继续运行，不受影响，但无法执行管理任务，包括扩展或更新服务，加入或删除节点。恢复的最佳方式是将丢失的leader节点重新联机。如果不可能，唯一方法是使用—force-new-cluster管理节点的操作这将去除本机之外的所有管理器身份
+docker swarm init --force-new-cluster --advertise-addr 192.168.1.111:2377
+```
+
+```shell
+#swarm 管理节点升降级	(docker node --help)
+docker node promote worker01	(将worker01升)
+docker node demote manager		（将manager降）
+```
+
+
 
 
 
