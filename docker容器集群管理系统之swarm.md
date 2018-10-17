@@ -258,7 +258,7 @@ nslookup my_web2
 注：使用dnsrr不支持端口对外的暴露，只支持服务之间的调用,此时可以使用下面模式进行负载均衡
 ```
 
-![](./img/2018-10-17_155009.png)
+![](https://github.com/xiaorui2017/docker/blob/master/img/2018-10-17_155009.png)
 
 #### 高可用性
 
