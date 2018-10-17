@@ -27,7 +27,7 @@ K8S社区相比Swarm和Mesos活跃度都高。
 
 Swarm是Docker公司自研发的容器集群管理系统，Swarm在早期是作为一个独立服务存在，在Docker Engine v1.12中集成了Swarm的**集群管理**和**编排功能**。可以通过初始化Swarm或加入现有Swarm来启用Docker引擎的Swarm模式。
 Docker Engine CLI和API包括了管理Swarm节点命令，比如添加、删除节点，以及在Swarm中部署和编排服务。
-也增加了**服务栈（Stack）、服务（Service）、任务（Task）**概念。
+也增加了 **服务栈（Stack）、服务（Service）、任务（Task）** 概念。
 
 ##### Swarm两种角色：
 
