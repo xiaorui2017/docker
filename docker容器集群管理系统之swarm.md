@@ -34,7 +34,7 @@ Docker Engine CLI和API包括了管理Swarm节点命令，比如添加、删除�
 **Manager**：接收客户端服务定义，将任务发送到worker节点；维护集群期望状态和集群管理功能及Leader选举。默认情况下manager节点也会运行任务，也可以配置只做管理任务。
 **Worker**：接收并执行从管理节点分配的任务，并报告任务当前状态，以便管理节点维护每个服务期望状态。
 
-![](./img/2018-10-17_143456.png)
+![](https://github.com/xiaorui2017/docker/blob/master/img/2018-10-17_143456.png)
 
 Swarm特点：
 
